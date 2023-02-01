@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang='en'>
+
+<head>
+  <meta charset='UTF-8'>
+  <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <title>Document</title>
+  <script src='./js/mqtt.js'></script>
+</head>
+
+<body>
+  <div>
+    <span>浇水量: </span>
+    <span id="water">?</span>
+  </div>
+  <div>
+    <span>温度: </span>
+    <span id="tem">?</span>
+  </div>
+  <div>
+    <span>湿度: </span>
+    <span id="hum">?</span>
+  </div>
+
+  <script>
+    const client = mqtt.connect('ws://127.0.0.1:8888')
+    const water = document.getElementById('water')
+    const tem = document.getElementById('tem')
+    const hum = document.getElementById('hum')
+    client.on('connect', (connack) => {
+      client.subscribe(['Water', 'DHT11'])
+    })
+
+    //接收到消息触发的回调函数
+    client.on('message', (topic, message) => {
+      const msg = JSON.parse(message.toString())
+      if (topic === 'Water') {
+        water.innerText = msg.value + 'ml'
+      }
+      if (topic === 'DHT11') {
+        tem.innerText = msg.tem + '°C'
+        hum.innerText = msg.hum + '%'
+      }
+    })
+  </script>
+</body>
+
+</html>
